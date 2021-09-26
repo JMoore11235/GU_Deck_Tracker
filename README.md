@@ -10,20 +10,20 @@ You should run the deck tracker in a dedicated folder (it creates a "config.txt"
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
 
 
-##Known Bugs<br>
+## Known Bugs<br>
 -Cards that add cards to your hand (like Strength in Numbers) currently try to draw from your deck, whether they've been randomly generated or returned from a void
 
 
 
 
-##FAQs:<br>
+## FAQs:<br>
 This will be updated as time goes on<br><br>
 
 
 
 
 
-Donations:<br>
+## Donations:<br>
 If you're feeling extremely generous and want to support the continued development of this tracker,<br>
 ETH Address: 0x49b0Dd8F81bF10CE7E999D73347107BFd6479FE5<br>
 PayPal: https://www.paypal.me/JMoore11235<br><br>

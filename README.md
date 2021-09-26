@@ -9,7 +9,9 @@ The python file will require you to install Python3 and PyQt5 (along with anythi
 
 
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).
-If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
+If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.<br>
+
+Please message me on Discord (JMoney#6100) if you have any comments/questions/suggestions!
 
 
 ## General Use<br>
@@ -20,7 +22,9 @@ Note that this does mean you'll have to have played at least one game with the d
 
 After that, the tracker should be completely funcitonal. Once you're in a game, the top button will bring you to your opponents gudecks.com page, which will allow you to look at their decks if you want to.<br>
 
-Finally, the settings page can be used to change the text font/size as well as transparency. Also, if your output_log.txt file is in a weird spot (or you aren't on Windows), you'll need to update the path to the file there. Make sure to provide the full path (i.e. starting at the very top, such as "C:" for windows, and ending with ".../output_log.txt".<br>
+Finally, the settings page can be used to change the text font/size as well as transparency. Also, if your output_log.txt file is in a weird spot (or you aren't on Windows), you'll need to update the path to the file there. Make sure to provide the full path (i.e. starting at the very top, such as "C:" for windows, and ending with ".../output_log.txt").<br>
+
+I believe that this should work with any OS that can run Python (which is pretty much anything normal), but if you're on Mac/Linux, I'd really appreciate if you tell me if it works or not for you!
 
 
 ## Known Bugs<br>

@@ -10,15 +10,15 @@ You should run the deck tracker in a dedicated folder (it creates a "config.txt"
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
 
 **FAQs:**<br>
-This will be updated as time goes on
+This will be updated as time goes on<br><br>
 
 
 
 
 
 Donations:
-If you're feeling extremely generous and want to support the continued development of this tracker,
-ETH Address: 0x49b0Dd8F81bF10CE7E999D73347107BFd6479FE5
-PayPal: https://www.paypal.me/JMoore11235
+If you're feeling extremely generous and want to support the continued development of this tracker,<br>
+ETH Address: 0x49b0Dd8F81bF10CE7E999D73347107BFd6479FE5<br>
+PayPal: https://www.paypal.me/JMoore11235<br><br>
 
 Please don't feel obligated; this is just for those who don't need the money for anything else!

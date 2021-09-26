@@ -13,7 +13,7 @@ If you just run it in your downloads folder/desktop, you risk the config file be
 
 
 ## Known Bugs<br>
--Cards that add cards to your hand (like Strength in Numbers) currently try to draw from your deck, whether they've been randomly generated or returned from a void
+-Cards that add cards to your hand (like Strength in Numbers) currently try to draw from your deck, whether they've been randomly generated or returned from a void, or from a god power
 
 
 

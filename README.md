@@ -9,7 +9,7 @@ The python file will require you to install Python3 and PyQt5 (along with anythi
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
 
-**FAQs:**
+**FAQs:**<br>
 This will be updated as time goes on
 
 

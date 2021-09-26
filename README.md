@@ -9,7 +9,14 @@ The python file will require you to install Python3 and PyQt5 (along with anythi
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
 
-**FAQs:**<br>
+
+##Known Bugs<br>
+-Cards that add cards to your hand (like Strength in Numbers) currently try to draw from your deck, whether they've been randomly generated or returned from a void
+
+
+
+
+##FAQs:<br>
 This will be updated as time goes on<br><br>
 
 

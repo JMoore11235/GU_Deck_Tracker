@@ -1,3 +1,5 @@
+# Gods Unchained Deck Tracker (v2)<br><br>
+
 This GitHub contains 2 files (besides this README), a python file and an executable.
 
 The executable is a self-contained version of the deck tracker; it doesn't require you to download Python, or any of the libraries I use.

@@ -1,4 +1,4 @@
-# Gods Unchained Deck Tracker (v2)<br><br>
+# Gods Unchained Deck Tracker (v2)<br>
 
 This GitHub contains 2 files (besides this README), a python file and an executable.
 

@@ -3607,7 +3607,7 @@ def createConfigFile():
     if (os.path.exists(configFile)):
         return
 
-    default_log_file_path = "C:\\Users\\" + getpass.getuser() + "\\\\AppData\\LocalLow\\FuelGames\\Gods Unchained - Version 0.39.0.2485(2021.8.19) - Built at 12_44_09\\output_log.txt"
+    default_log_file_path = "C:\\Users\\" + getpass.getuser() + "\\AppData\\LocalLow\\FuelGames\\Gods Unchained - Version 0.39.0.2485(2021.8.19) - Built at 12_44_09\\output_log.txt"
 
     conf = open(configFile, "w")
     conf.write("active_deck::==\n")
@@ -4053,7 +4053,10 @@ class MainWindow(QWidget):
             alert = QMessageBox()
             alert.setText('No valid log file found. Please check path.')
             alert.exec()
-        self.deckTrackerLabel.setText(textFromDeckList(deck))
+            self.deckTrackerLabel.setText("No Log File Found")
+        else:
+            self.deckTrackerLabel.setText(textFromDeckList(deck))
+
 
 
         #change fonts

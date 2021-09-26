@@ -12,6 +12,17 @@ You should run the deck tracker in a dedicated folder (it creates a "config.txt"
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced.
 
 
+## General Use<br>
+Once you have the deck tracker up and running, you'll need to set your active deck with the middle button. You should use a deck url from gudecks.com, and it should look something like the following:<br>
+https://gudecks.com/decks/war,110,110,155,196,196,231,231,376,376,863,863,867,867,1051,1052,1052,1078,1137,1139,1139,1157,1157,1180,1180,1197,1197,1200,1200,1258,1258?godPowers=100114&creator=JMoney&userId=54971&archetype=Deadly%20Control%20War <br><br>
+
+Note that this does mean you'll have to have played at least one game with the deck before you can use the tracker with it.<br><br>
+
+After that, the tracker should be completely funcitonal. Once you're in a game, the top button will bring you to your opponents gudecks.com page, which will allow you to look at their decks if you want to.<br>
+
+Finally, the settings page can be used to change the text font/size as well as transparency. Also, if your output_log.txt file is in a weird spot (or you aren't on Windows), you'll need to update the path to the file there. Make sure to provide the full path (i.e. starting at the very top, such as "C:" for windows, and ending with ".../output_log.txt".<br>
+
+
 ## Known Bugs<br>
 -Cards that add cards to your hand (like Strength in Numbers) currently try to draw from your deck, whether they've been randomly generated or returned from a void, or from a god power
 

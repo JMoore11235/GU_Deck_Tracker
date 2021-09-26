@@ -3598,6 +3598,7 @@ configFile = "config.txt"
 text_size = 14
 text_font = "Helvetica"
 opacity = 1
+warnedAboutLogFile = False
 
 
 
@@ -3777,10 +3778,12 @@ def getDeckList(url):
 
 
 def getOpponentWebpage(logFileName):
-    try:
-        inFile = open(logFileName, "r")
-    except ValueError:
+
+    if (not os.path.exists(logFileName)):
         return -2
+
+    inFile = open(logFileName, "r")
+ 
 
 
     guDecksPlayerPageBase = "https://gudecks.com/meta/player-stats?userId="
@@ -3965,6 +3968,7 @@ def opponentsWebpage():
         alert.exec()
 
 
+
 def textFromDeckList(cardList=None):
     if (cardList == None):
         cardList = getDeckList(getUrl(configFile))
@@ -4046,13 +4050,17 @@ class MainWindow(QWidget):
         global opacity
         global text_font
         global text_size
+        global warnedAboutLogFile
 
 
         deck = updateDeckList(logFile, getDeckList(getUrl(configFile)), allCards)
         if (deck == -2):
-            alert = QMessageBox()
-            alert.setText('No valid log file found. Please check path.')
-            alert.exec()
+            if (not warnedAboutLogFile):
+                alert = QMessageBox()
+                alert.setText('No valid log file found. Please check path.')
+                alert.exec()
+                warnedAboutLogFile = True
+
             self.deckTrackerLabel.setText("No Log File Found")
         else:
             self.deckTrackerLabel.setText(textFromDeckList(deck))
@@ -4201,6 +4209,7 @@ class SettingsWindow(QWidget):
         global text_font
         global opacity
         global logFile
+        global warnedAboutLogFile
 
         if (not str(self.textSizeEdit.text()) == ""):
             text_size = int(self.textSizeEdit.text())
@@ -4221,6 +4230,7 @@ class SettingsWindow(QWidget):
             updateOpacity(float(opacity))
 
         if (not str(self.pathEdit.text()) == ""):
+            warnedAboutLogFile = False
             logFile = self.pathEdit.text()
             updateLogPath(logFile)
 

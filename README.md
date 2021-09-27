@@ -19,7 +19,7 @@ This GitHub contains 2 main files (besides this README, a change log, and a fold
 The executable is a self-contained version of the deck tracker; it doesn't require you to download Python, or any of the libraries I use.
 However, it is quite a bit larger and obviously isn't transparent (I swear there's nothing in it that isn't in the python file, but you can never really be sure).
 
-The python file will require you to install Python3 and PyQt5 (along with anything else that I'm important that you don't have already), but is much smaller and you can read through the entire thing.
+The python file will require you to install Python3 and PyQt5 (along with anything else that I'm importing that you don't have already), but is much smaller and you can read through the entire thing.
 
 
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).

@@ -4230,7 +4230,7 @@ class SettingsWindow(QWidget):
         layout.addWidget(self.opacityEdit)
 
 
-        self.pathLabel = QLabel("Enter path to 'output_log.txt':")
+        self.pathLabel = QLabel("Enter path to 'FuelGames' log folder:")
         self.pathLabel.setFont(QFont(text_font, text_size))
         layout.addWidget(self.pathLabel)
 

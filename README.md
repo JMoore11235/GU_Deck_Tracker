@@ -14,7 +14,7 @@
 
 ## Overview<br>
 
-This GitHub contains 2 files (besides this README and a folder containing previous versions of this deck tracker): a python file and an executable.
+This GitHub contains 2 files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable.
 
 The executable is a self-contained version of the deck tracker; it doesn't require you to download Python, or any of the libraries I use.
 However, it is quite a bit larger and obviously isn't transparent (I swear there's nothing in it that isn't in the python file, but you can never really be sure).

@@ -2,7 +2,7 @@
 This file contains all patch notes from previous versions, with the most recent change at the top.<br>
 
 ## v3-0 (10/20/21)<br>
-###Acknowlegdements:<br>
+### Acknowlegdements:<br>
 Thank you so much to:<br>
 -Ecksray for helping me test edge cases,<br>
 -Misko for helping me find more/different log files to get more consistent results, and<br>

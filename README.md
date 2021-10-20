@@ -2,7 +2,7 @@
 
 ## Overview<br>
 
-Most recent YouTube video: 
+Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg 
 
 This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable.
 

@@ -6,7 +6,7 @@ This file contains all patch notes from previous versions, with the most recent 
 Thank you so much to:<br>
 -Ecksray for helping me test edge cases,<br>
 -Misko for helping me find more/different log files to get more consistent results, and<br>
--Palestich for discovering how to automatically update the deck as well as lots of other helpful ideas!<br>
+-Palestitch for discovering how to automatically update the deck as well as lots of other helpful ideas!<br>
 
 ### Bug Fixes
 - Many issues with the deck tracker's counting have been solved. For example, overdrawing now removes a card from your deck and shuffling cards into your deck adds them to the tracker<br>

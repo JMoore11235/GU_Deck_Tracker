@@ -1,6 +1,35 @@
 # Change Log<br>
 This file contains all patch notes from previous versions, with the most recent change at the top.<br>
 
+## v3-0 (10/20/21)<br>
+###Acknowlegdements:<br>
+Thank you so much to:<br>
+-Ecksray for helping me test edge cases,<br>
+-Misko for helping me find more/different log files to get more consistent results, and<br>
+-Palestich for discovering how to automatically update the deck as well as lots of other helpful ideas!<br>
+
+### Bug Fixes
+- Many issues with the deck tracker's counting have been solved. For example, overdrawing now removes a card from your deck and shuffling cards into your deck adds them to the tracker<br>
+- Deck Tracker should no longer crash when failing to find a card in all cards<br>
+- Deck Tracker should no longer crash when inputting a non-valid text size/opacity<br>
+- Deutaria now causes her upgraded versions to show (-1) when drawn once again. This has been reverted so that players know when they have drawn them, and can figure out what stage of Deutaria they're on.<br>
+
+### Quality of Life Changes<br>
+- You no longer have to set your active deck! It is now done automatically at the beginning of each game.<br>
+- You can now toggle the deck tracker off if you wish to only use this as a "open my opponent's page" button while taking up much less space.<br>
+
+### Code Changes<br>
+- Code should now be much more readable, and has been split into two files because I finally figured out how to compile a text file in with the main .py file<br>
+- Removed all global variables (thank goodness)
+- Big shift away from output_log.txt towards event_solver_info.txt (although output_log.txt is still needed for Jason)<br>
+
+### Known Bugs and Issues<br>
+- Cards that are shuffled into your deck that don't come from your hand show up as (-1) when drawn. The bug here is not so much that this is happening, but that the cards aren't getting added when originally shuffled.<br>
+
+### Other<br>
+- README has been updated to include a link to the most recent YouTube video, which should show the compilation of the .exe file as well as an overview of the changes listed here!<br>
+
+
 ## v2-1<br>
 ### Bug Fixes<br>
 -Deutaria no longer causes her upgraded versions to show (-1) on the deck tracker, even when drawn<br>

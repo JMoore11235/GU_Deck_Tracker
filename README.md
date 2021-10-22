@@ -16,7 +16,7 @@ Also, you will need to download "condensed_card_library.txt" and have it in the 
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced. Additionally, when updating, the .py and accompanying text files will automatically be downloaded.<br>
 
-### Please message me on Discord (JMoney#6100) if you have any comments/questions/suggestions!
+#### Please message me on Discord (JMoney#6100) if you have any comments/questions/suggestions!
 
 
 ## General Use<br>

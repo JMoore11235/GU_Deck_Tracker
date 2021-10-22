@@ -12,6 +12,9 @@ from PyQt5.QtGui import *
 import getpass
 import time
 import os
+import urllib.request
+import re
+import subprocess
 
 #########################
 # PyInstaller Functions #
@@ -38,7 +41,7 @@ def resource_path(rel_path):
 
 
 #Creates a default config.txt file if one does not exist already
-def createConfig(configFile, font, size, opacity, logFilePath):
+def createConfig(configFile, font, size, opacity, logFolderPath):
     if (os.path.exists(configFile)):
         return
 
@@ -47,27 +50,33 @@ def createConfig(configFile, font, size, opacity, logFilePath):
     conFile.write("textFont::==" + font + "\n")
     conFile.write("textSize::==" + str(size) + "\n")
     conFile.write("opacity::==" + str(opacity) + "\n")
-    conFile.write("logFilePath::==" + logFilePath + "\n")
+    conFile.write("logFolderPath::==" + logFolderPath + "\n")
     conFile.write("deckTracker::==True\n")
+    conFile.write("updateNotify::==True\n")
+    conFile.write("autoUpdate::==False\n")
+    conFile.write("justUpdated::==True\n")
 
     conFile.close()
 
 
-# Line Number -> Value:
-#   0 -> Text Font (textFont)
-#   1 -> Text Size (textSize)
-#   2 -> Opacity (opacity)
-#   3 -> Log File Path (logFilePath)
-#   4 -> Show Deck Tracker (deckTracker)
-# Input: Config file, line of config to update (see above for correct line) and the value to update it to.
+# Input: Config file, line of config to update, and the value to update it to.
 # Output: Just returns the updatedValue input
 # Additional functionality: Updates the config file
-def updateConfig(configFile, lineNumber, updatedValue):
+def updateConfig(configFile, lineToChange, updatedValue):
     conFile = open(configFile, "r", encoding="utf8")
     lines = conFile.readlines()
     conFile.close()
 
-    lines[lineNumber] = lines[lineNumber].split("::==")[0] + "::==" + str(updatedValue) + "\n"
+    found = False
+    for n in range(len(lines)):
+        if (lines[n].split("::==")[0] == lineToChange):
+            lines[n] = lineToChange + "::==" + str(updatedValue) + "\n"
+            found = True
+            break
+
+    # If the value to change doesn't exist, return -1
+    if (not found):
+        return -1
 
     conFile = open(configFile, "w", encoding="utf8")
     conFile.writelines(lines)
@@ -79,41 +88,22 @@ def updateConfig(configFile, lineNumber, updatedValue):
 #   0 -> Text Font (textFont)
 #   1 -> Text Size (textSize)
 #   2 -> Opacity (opacity)
-#   3 -> Log File Path (logFilePath)
+#   3 -> Log File Path (logFolderPath)
 #   4 -> Show Deck Tracker (deckTracker)
 # Input: Config file and the line of config to return (see above for correct line)
 # Output: The requested value
-def getConfigVal(configFile, lineNumber):
+def getConfigVal(configFile, lineHeader):
     conFile = open(configFile, "r", encoding="utf8")
     lines = conFile.readlines()
     conFile.close()
 
-    return lines[lineNumber].split("::==")[1].strip()
-
-
-# Input: The name of the configFile
-# Output: A list containing all of the values in the config file
-def getPreferencesFromConfig(configFile):
-
-
-    conf = open(configFile, "r", encoding="utf8")
-    lines = conf.readlines()
-    conf.close()
-
-    splitLines = []
     for line in lines:
-        addLine = line.split("::==")[1].strip()
+        splitLines = line.split("::==")
+        if (splitLines[0] == lineHeader):
+            return splitLines[1].strip()
 
-        # Taken from: https://stackoverflow.com/questions/46647744/checking-to-see-if-a-string-is-an-integer-or-float
-        # This just makes sure we are adding the correct type to preferences
-        if (addLine.isdigit()):
-            splitLines.append(int(addLine))
-        elif (addLine.replace(".", "", 1).isdigit() and addLine.count(".") < 2):
-            splitLines.append(float(addLine))
-        else:
-            splitLines.append(str(addLine))
-
-    return splitLines
+    # We didn't find the header
+    return -1
 
 
 #####################
@@ -124,7 +114,7 @@ def getPreferencesFromConfig(configFile):
 # Output: The mana cost of the card
 def getManaCost(name, libraryFile):
     retNext = False
-    allCards = open(resource_path(libraryFile), "rt", encoding="latin-1")
+    allCards = open(resource_path(libraryFile), "rt", encoding="utf8")
 
     for line in allCards:
         if retNext:
@@ -387,17 +377,18 @@ def opponentsWebpage(logFolderPath):
         alert.exec()
 
 
-def toggleDeckTracker(configFile):
-    currVal = getConfigVal(configFile, 4)
+def toggleConfigBoolean(configFile, toToggle):
+    currVal = getConfigVal(configFile, toToggle)
     if (currVal == "True"):
-        updateConfig(configFile, 4, "False")
+        updateConfig(configFile, toToggle, "False")
     else:
-        updateConfig(configFile, 4, "True")
+        updateConfig(configFile, toToggle, "True")
+
 
 
 # Main Window which includes the deck tracker
 class MainWindow(QWidget):
-    def __init__(self, configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath):
+    def __init__(self, windowTitle, configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath):
         super().__init__()
 
         #################
@@ -405,27 +396,26 @@ class MainWindow(QWidget):
         #################
 
         # Setting all the inputs to "self.X" values so I can use it in update
+        self.windowTitle = windowTitle
         self.configFile = configFile
         self.libraryFile = libraryFile
         self.assetDownloaderFilePath = assetDownloaderFilePath
         self.eventSolverFilePath = eventSolverFilePath
 
         # Find and set initial preference values
-        # Preferences should be: 0 -> textFont, 1 -> textSize, 2 -> opacity, 3 -> logFolderPath,
-        #   4 -> Show Deck Tracker (deckTracker)
-        preferences = getPreferencesFromConfig(configFile)
-        self.textFont = preferences[0]
-        self.textSize = preferences[1]
-        self.opacity = preferences[2]
-        self.logFolderPath = preferences[3]
+        self.textFont = getConfigVal(configFile, "textFont")
+        self.textSize = int(getConfigVal(configFile, "textSize"))
+        self.opacity = float(getConfigVal(configFile, "opacity"))
+        self.logFolderPath = getConfigVal(configFile, "logFolderPath")
+
+        # Always start with the deck tracker enabled, regardless of previous settings
+        updateConfig(configFile, "deckTracker", "True")
         self.showTracker = True
-        if (preferences[4] == "False"):
-            self.showTracker = False
 
         # This is so that we don't spam the user with tons of warnings if a log file can't be found
         self.warnedAboutLogFile = False
         # This keeps track of the last log path we warned about, so we know if we should update warnedAboutLogFile
-        self.warnedLogFilePath = ""
+        self.warnedlogFolderPath = ""
 
         ###############################
         # Creation of the Main Window #
@@ -434,7 +424,7 @@ class MainWindow(QWidget):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.tempWindow = None
         self.layout = QVBoxLayout()
-        self.setWindowTitle("JMoney's Deck Tracker v3.0")
+        self.setWindowTitle(windowTitle)
 
         self.opponentPageButton = QPushButton("Open Opponent's GUDecks Page", self)
 
@@ -450,7 +440,8 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.settingsButton)
 
         self.toggleDeckTrackerButton = QPushButton("Toggle Deck Tracker", self)
-        self.toggleDeckTrackerButton.clicked.connect(lambda i: toggleDeckTracker(self.configFile))
+        self.toggleDeckTrackerButton.clicked.connect(lambda i: toggleConfigBoolean(self.configFile, "deckTracker"))
+        self.toggleDeckTrackerButton.clicked.connect(self.update)
         self.toggleDeckTrackerButton.setFont(QFont(self.textFont, self.textSize))
         self.layout.addWidget(self.toggleDeckTrackerButton)
 
@@ -474,15 +465,13 @@ class MainWindow(QWidget):
         ######################
 
         # Find and set current preference values
-        # Preferences should be: 0 -> textFont, 1 -> textSize, 2 -> opacity, 3 -> logFolderPath,
-        #   4 -> Show Deck Tracker (deckTracker)
-        preferences = getPreferencesFromConfig(self.configFile)
-        self.textFont = preferences[0]
-        self.textSize = preferences[1]
-        self.opacity = preferences[2]
-        self.logFolderPath = preferences[3]
+        self.textFont = getConfigVal(configFile, "textFont")
+        self.textSize = int(getConfigVal(configFile, "textSize"))
+        self.opacity = float(getConfigVal(configFile, "opacity"))
+        self.logFolderPath = getConfigVal(configFile, "logFolderPath")
+
         self.showTracker = True
-        if (preferences[4] == "False"):
+        if (getConfigVal(configFile, "deckTracker") == "False"):
             self.showTracker = False
 
         # Update Tracker based on new settings
@@ -494,7 +483,7 @@ class MainWindow(QWidget):
 
         # If we have a different path than the one we previously warned about, we have no longer warned about the
         #   current log file
-        if (self.warnedLogFilePath != self.logFolderPath):
+        if (self.warnedlogFolderPath != self.logFolderPath):
             self.warnedAboutLogFile = False
 
         ########################
@@ -527,7 +516,7 @@ class MainWindow(QWidget):
                 alert.setText('No valid log file found. Please check path. [Debugging Code: 0102]')
                 alert.exec()
                 self.warnedAboutLogFile = True
-                self.warnedLogFilePath = self.logFolderPath
+                self.warnedlogFolderPath = self.logFolderPath
                 return
         elif (updatedList == -2):
             # Event solver doesn't exist yet, so just wait
@@ -552,12 +541,12 @@ class MainWindow(QWidget):
 
 
     def settings(self):
-        self.tempWindow = SettingsWindow(self.configFile, self.libraryFile, self.assetDownloaderFilePath,
+        self.tempWindow = SettingsWindow(self.windowTitle, self.configFile, self.libraryFile, self.assetDownloaderFilePath,
                                          self.eventSolverFilePath)
 
 
 class SettingsWindow(QWidget):
-    def __init__(self, configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath):
+    def __init__(self, windowTitle, configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath):
         super().__init__()
 
         # Setting all the inputs to "self.X" values so I can use it in confirm
@@ -567,79 +556,107 @@ class SettingsWindow(QWidget):
         self.eventSolverFilePath = eventSolverFilePath
 
         # Find and set current preference values
-        # Preferences should be: 0 -> textFont, 1 -> textSize, 2 -> opacity, 3 -> logFolderPath
-        #   4 -> Show Deck Tracker (deckTracker)
-        preferences = getPreferencesFromConfig(self.configFile)
-        self.textFont = preferences[0]
-        self.textSize = preferences[1]
-        self.opacity = preferences[2]
-        self.logFolderPath = preferences[3]
+        self.textFont = getConfigVal(configFile, "textFont")
+        self.textSize = int(getConfigVal(configFile, "textSize"))
+        self.opacity = float(getConfigVal(configFile, "opacity"))
+        self.logFolderPath = getConfigVal(configFile, "logFolderPath")
         # We don't need deckTracker
 
 
         self.setWindowOpacity(self.opacity)
-        self.setWindowTitle("JMoney's Deck Tracker v3.0")
+        self.setWindowTitle(windowTitle)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
+
+        self.updateNotify = True
+        strToDisplay = "(Currently Enabled)"
+        if (getConfigVal(self.configFile, "updateNotify") == "False"):
+            self.updateNotify = False
+            strToDisplay = "(Currently Disabled)"
+
+        self.updateNotifyButton = QPushButton("Toggle Update Notifications " + strToDisplay, self)
+        self.updateNotifyButton.clicked.connect(lambda i: toggleConfigBoolean(self.configFile, "updateNotify"))
+        self.updateNotifyButton.clicked.connect(self.updateText)
+        self.updateNotifyButton.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.updateNotifyButton)
+
+        strToDisplay = "(Currently Enabled)"
+        if (getConfigVal(self.configFile, "autoUpdate") == "False"):
+            self.updateNotify = False
+            strToDisplay = "(Currently Disabled)"
+
+        self.autoUpdateButton = QPushButton("Toggle Automatic Updates " + strToDisplay, self)
+        self.autoUpdateButton.clicked.connect(lambda i: toggleConfigBoolean(self.configFile, "autoUpdate"))
+        self.autoUpdateButton.clicked.connect(self.updateText)
+        self.autoUpdateButton.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.autoUpdateButton)
 
         self.textSizeLabel = QLabel("Enter desired text size (Currently " + str(self.textSize) + "):")
         self.textSizeLabel.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.textSizeLabel)
+        self.layout.addWidget(self.textSizeLabel)
 
         self.textSizeEdit = QLineEdit("")
         self.textSizeEdit.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.textSizeEdit)
+        self.layout.addWidget(self.textSizeEdit)
 
         self.textFontLabel = QLabel("Enter desired text font (Currently " + str(self.textFont) + "):")
         self.textFontLabel.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.textFontLabel)
+        self.layout.addWidget(self.textFontLabel)
 
         self.textFontEdit = QLineEdit("")
         self.textFontEdit.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.textFontEdit)
+        self.layout.addWidget(self.textFontEdit)
 
         self.opacityLabel = QLabel("Enter desired opacity (Currently " + str(self.opacity) + "; Range 0.25-1):")
         self.opacityLabel.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.opacityLabel)
+        self.layout.addWidget(self.opacityLabel)
 
         self.opacityEdit = QLineEdit("")
         self.opacityEdit.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.opacityEdit)
+        self.layout.addWidget(self.opacityEdit)
 
         self.pathLabel = QLabel("Enter path to 'FuelGames' log folder:")
         self.pathLabel.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.pathLabel)
+        self.layout.addWidget(self.pathLabel)
 
         self.pathEdit = QLineEdit("")
         self.pathEdit.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.pathEdit)
+        self.layout.addWidget(self.pathEdit)
 
         self.confirmButton = QPushButton("Apply", self)
         self.confirmButton.clicked.connect(self.confirm)
         self.confirmButton.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.confirmButton)
+        self.layout.addWidget(self.confirmButton)
 
         self.cancelButton = QPushButton("Cancel", self)
         self.cancelButton.clicked.connect(self.cancel)
         self.cancelButton.setFont(QFont(self.textFont, self.textSize))
-        layout.addWidget(self.cancelButton)
+        self.layout.addWidget(self.cancelButton)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
         self.show()
 
+    def updateText(self):
+        self.updateNotify = True
+        strToDisplay = "(Currently Enabled)"
+        if (getConfigVal(self.configFile, "updateNotify") == "False"):
+            self.updateNotify = False
+            strToDisplay = "(Currently Disabled)"
+
+        self.updateNotifyButton.setText("Toggle Update Notifications " + strToDisplay)
+
+        strToDisplay = "(Currently Enabled)"
+        if (getConfigVal(self.configFile, "autoUpdate") == "False"):
+            self.updateNotify = False
+            strToDisplay = "(Currently Disabled)"
+
+        self.autoUpdateButton.setText("Toggle Automatic Updates " + strToDisplay)
+
     def confirm(self):
-
-        # config.txt Line Number -> Value:
-        #   0 -> Text Font (textFont)
-        #   1 -> Text Size (textSize)
-        #   2 -> Opacity (opacity)
-        #   3 -> Log File Path (logFilePath)
-        #   4 -> Show Deck Tracker (deckTracker)
-
         # 0 (Text Font)
         if (not str(self.textFontEdit.text()) == ""):
             updateTextFont = self.textFontEdit.text()
-            updateConfig(self.configFile, 0, updateTextFont)
+            updateConfig(self.configFile, "textFont", updateTextFont)
 
         # 1 (Text Size)
         if (not str(self.textSizeEdit.text()) == ""):
@@ -651,7 +668,7 @@ class SettingsWindow(QWidget):
                 elif (updateTextSize > 80):
                     updateTextSize = 80
 
-                updateConfig(self.configFile, 1, updateTextSize)
+                updateConfig(self.configFile, "textSize", updateTextSize)
 
         # 2 (Opacity)
         if (not str(self.opacityEdit.text()) == ""):
@@ -664,15 +681,22 @@ class SettingsWindow(QWidget):
                     updateOpacity = 0.25
                 elif (updateOpacity > 1):
                     updateOpacity = 1
-                updateConfig(self.configFile, 2, updateOpacity)
+                updateConfig(self.configFile, "opacity", updateOpacity)
 
         # 3 (logFile)
         if (not str(self.pathEdit.text()) == ""):
             updateLogPath = str(self.pathEdit.text())
-            subDirs = [(updateLogPath + "\\" + d) for d in os.listdir(updateLogPath)
-                       if os.path.isdir((updateLogPath + "\\" + d))]
-            updateLogPath = max(subDirs, key=os.path.getmtime)
-            updateConfig(self.configFile, 3, updateLogPath)
+
+            if (not os.path.exists(updateLogPath)):
+                alert = QMessageBox()
+                alert.setText('Warning: Path not found. Please enter a valid path.')
+                alert.exec()
+
+            else:
+                subDirs = [(updateLogPath + "\\" + d) for d in os.listdir(updateLogPath)
+                           if os.path.isdir((updateLogPath + "\\" + d))]
+                updateLogPath = max(subDirs, key=os.path.getmtime)
+                updateConfig(self.configFile, "logFolderPath", updateLogPath)
 
         self.close()
 
@@ -681,15 +705,257 @@ class SettingsWindow(QWidget):
 
 
 
+##########################
+# Auto-Updater Functions #
+##########################
+
+# Compares two versions of the format X-Y-Z; numbers with hyphens in between
+# If v1 > v2, return 1 (This shouldn't happen usually)
+# If v1 == v2, return 0
+# If v1 < v2, return -1
+def compareVersions(v1, v2):
+    splitV1 = v1.split("-")
+    splitV2 = v2.split("-")
+
+    # Which one is longer matters if the shorter one equals the longer one all the way to the end; if that's the case
+    #   then the longer one is greater
+    v1Longer = (len(splitV1) > len(splitV2))
+
+    minLength = len(splitV1)
+    maxLength = len(splitV2)
+    if (v1Longer):
+        minLength = len(splitV2)
+    else:
+        maxLength = len(splitV2)
+
+    for n in range(minLength):
+        if (int(splitV1[n]) > int(splitV2[n])):
+            return 1
+        elif (int(splitV1[n]) < int(splitV2[n])):
+            return -1
+
+    # At this point, we have a tie
+    if (minLength == maxLength):
+        return 0
+    elif (minLength == len(splitV1)):
+        return -1
+    else:
+        return 1
+
+
+def findGithubVersion():
+    githubData = urllib.request.urlopen("https://github.com/JMoore11235/GU_Deck_Tracker/")
+    githubString = githubData.read().decode("utf8")
+    return re.search('gu_tracker-v(.*).py" ', githubString).group(1).strip()
+
+
+def openPatchNotesWebpage():
+    webbrowser.open(("https://github.com/JMoore11235/GU_Deck_Tracker/blob/main/ChangeLog.md"), new=2, autoraise=True)
+
+
+def updateAndRestart(configFile, updateVersion):
+
+    # We are updating, so set justUpdated to True
+    updateConfig(configFile, "justUpdated", "True")
+
+    # Delete this file (Doesn't work; no permissions.)
+    # os.chmod(sys.argv[0], 0o777)
+    # os.remove(sys.argv[0])
+
+    # subprocess.Popen("python -c \"import os, time; time.sleep(1); os.remove(r'{}');\"".format(sys.argv[0]), shell=True)
+
+    # Download the .exe
+    filename, headers = urllib.request.urlretrieve(
+        "https://github.com/JMoore11235/GU_Deck_Tracker/releases/download/" + updateVersion +
+        "/gu_tracker-v" + updateVersion + ".exe", "gu_tracker-v" + updateVersion + ".exe")
+
+
+    # If people want to auto update with the .py file, uncomment this out
+
+    ## Download the .py
+    #urllib.request.urlretrieve(
+    #    "https://github.com/JMoore11235/GU_Deck_Tracker/releases/download/" + updateVersion + "/gu_tracker-v" +
+    #    updateVersion + ".py", "gu_tracker-v" + updateVersion + ".py")
+    #
+    ## Download the condensed_card_library.txt
+    #urllib.request.urlretrieve(
+    #    "https://github.com/JMoore11235/GU_Deck_Tracker/releases/download/" + updateVersion +
+    #    "/condensed_card_library.txt", "condensed_card_library.txt")
 
 
 
+    # Run the new version of the tracker and end this one
+    subprocess.Popen(filename)
+    sys.exit()
+
+class JustUpdatedWindow(QWidget):
+    def __init__(self, configFile, updateVersion):
+        super().__init__()
+
+        self.textFont = getConfigVal(configFile, "textFont")
+        self.textSize = int(getConfigVal(configFile, "textSize"))
+        self.opacity = float(getConfigVal(configFile, "opacity"))
+
+        self.setWindowOpacity(self.opacity)
+        self.setWindowTitle("Just Updated!")
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.layout = QVBoxLayout()
+
+        self.displayText = QLabel("You have just updated to version " + updateVersion + "!")
+        self.displayText.setFont(QFont(self.textFont, self.textSize))
+        self.displayText.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.displayText)
+
+        self.openPage = QPushButton("View Patch Notes", self)
+        self.openPage.clicked.connect(openPatchNotesWebpage)
+        self.openPage.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.openPage)
+
+        self.closeButton = QPushButton("Close", self)
+        self.closeButton.clicked.connect(self.close)
+        self.closeButton.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.closeButton)
+
+        self.setLayout(self.layout)
+        self.show()
+
+
+class UpdateWindow(QWidget):
+    def __init__(self, configFile, updateVersion):
+        super().__init__()
+
+        self.textFont = getConfigVal(configFile, "textFont")
+        self.textSize = int(getConfigVal(configFile, "textSize"))
+        self.opacity = float(getConfigVal(configFile, "opacity"))
+
+        self.setWindowOpacity(self.opacity)
+        self.setWindowTitle("Update Available!")
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.layout = QVBoxLayout()
+
+        self.updateAvailableText = QLabel("Version " + updateVersion + " is available now!\n\nYou can toggle " +
+                                          "auto-updates and update notifications in the settings.")
+        self.updateAvailableText.setFont(QFont(self.textFont, self.textSize))
+        self.updateAvailableText.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.updateAvailableText)
+
+        self.openPage = QPushButton("View Patch Notes", self)
+        self.openPage.clicked.connect(openPatchNotesWebpage)
+        self.openPage.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.openPage)
+
+        self.updateNow = QPushButton("Update Now! (Will freeze for a little; don't worry!)", self)
+        self.updateNow.clicked.connect(lambda i: updateAndRestart(configFile, updateVersion))
+        self.updateNow.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.updateNow)
+
+        self.closeButton = QPushButton("Continue without updating", self)
+        self.closeButton.clicked.connect(self.close)
+        self.closeButton.setFont(QFont(self.textFont, self.textSize))
+        self.layout.addWidget(self.closeButton)
+
+        self.setLayout(self.layout)
+        self.show()
+
+
+def showJustUpdatedWindow(configFile, updateVersion):
+    updateApp = QApplication([])
+    updateApp.setStyle('Fusion')
+
+    justUpdatedWindow = JustUpdatedWindow(configFile, updateVersion)
+
+    # At this point we know we want to notify but not autoupdate
+
+    # This is stolen from: https://stackoverflow.com/questions/48256772/dark-theme-for-qt-widgets
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    palette.setColor(QPalette.WindowText, Qt.white)
+    palette.setColor(QPalette.Base, QColor(25, 25, 25))
+    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipText, Qt.white)
+    palette.setColor(QPalette.Text, Qt.white)
+    palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    palette.setColor(QPalette.ButtonText, Qt.white)
+    palette.setColor(QPalette.BrightText, Qt.red)
+    palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    palette.setColor(QPalette.HighlightedText, Qt.black)
+    updateApp.setPalette(palette)
+
+    # If notifications are off, don't message
+    # Also, if autoUpdate is on then we don't need this window since we're updating anyway
+    updateApp.exec()
+
+    return justUpdatedWindow
+
+
+
+
+def updateTracker(configFile, updateVersion):
+
+    notify = True
+    if (getConfigVal(configFile, "updateNotify") == "False"):
+        notify = False
+
+    autoUpdate = True
+    if (getConfigVal(configFile, "autoUpdate") == "False"):
+        autoUpdate = False
+
+    # If auto updates are enabled, just update
+    if (autoUpdate):
+        updateAndRestart(configFile, updateVersion)
+        return
+
+    # If we don't want to be notified, then don't show this
+    elif (not notify):
+        return
+
+    updateApp = QApplication([])
+    updateApp.setStyle('Fusion')
+
+    updateWindow = UpdateWindow(configFile, updateVersion)
+
+
+
+
+
+
+    #At this point we know we want to notify but not autoupdate
+
+    # This is stolen from: https://stackoverflow.com/questions/48256772/dark-theme-for-qt-widgets
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    palette.setColor(QPalette.WindowText, Qt.white)
+    palette.setColor(QPalette.Base, QColor(25, 25, 25))
+    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipText, Qt.white)
+    palette.setColor(QPalette.Text, Qt.white)
+    palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    palette.setColor(QPalette.ButtonText, Qt.white)
+    palette.setColor(QPalette.BrightText, Qt.red)
+    palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    palette.setColor(QPalette.HighlightedText, Qt.black)
+    updateApp.setPalette(palette)
+
+
+
+    # If notifications are off, don't message
+    # Also, if autoUpdate is on then we don't need this window since we're updating anyway
+    updateApp.exec()
+
+    return updateWindow
 
 
 
 if __name__ == "__main__":
 
-    #defaults
+    # Current Version
+    localVersion = "3-1"
+
+    # defaults
     defaultFont = "Helvetica"
     defaultSize = 14
     defaultOpacity = 1
@@ -709,12 +975,36 @@ if __name__ == "__main__":
     #Create a config.txt file if one does not already exist, then set current preferences based on that
     createConfig(configFile, defaultFont, defaultSize, defaultOpacity, defaultLogFolderPath)
 
+    #####################
+    # Check for updates #
+    #####################
+
+    gitHubVersion = findGithubVersion()
+    versionComparison = compareVersions(gitHubVersion, localVersion)
+
+    keepReference = None
+
+    # This means we have a new update!
+    if (versionComparison > 0):
+        keepReference = updateTracker(configFile, gitHubVersion)
+
+    windowTitle = "JMoney's Deck Tracker v" + str(localVersion)
+
+
+    # Check to see if we haven't run this since updating it
+    if (getConfigVal(configFile, "justUpdated") == "True"):
+        justUpdatedWindow = showJustUpdatedWindow(configFile, localVersion)
+
+
+    # After we've checked for updates, we know that we are no longer running this version for the first time
+    #   (because when we update, we force a restart)
+    updateConfig(configFile, "justUpdated", "False")
 
     app = QApplication([])
     app.setStyle('Fusion')
 
 
-    mainWindow = MainWindow(configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath)
+    mainWindow = MainWindow(windowTitle, configFile, libraryFile, assetDownloaderFilePath, eventSolverFilePath)
 
     # This is stolen from: https://stackoverflow.com/questions/48256772/dark-theme-for-qt-widgets
     palette = QPalette()

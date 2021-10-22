@@ -2,8 +2,8 @@
 
 ## Overview<br>
 
-#### Most recent release: 3-0
-#### Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg 
+#### Most recent release: 3-1
+#### Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg (Currently outdated)
 
 This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable. 
 ### You'll be able to find the most recent .py file on the main page, and the most recent .exe file in the latest release!
@@ -17,6 +17,9 @@ Also, you will need to download "condensed_card_library.txt" and have it in the 
 
 You should run the deck tracker in a dedicated folder (it creates a "config.txt" file that contains your personal preferences as well as your deck code and path to log file).
 If you just run it in your downloads folder/desktop, you risk the config file becoming misplaced. Additionally, when updating, the .py and accompanying text files will automatically be downloaded.<br>
+
+Finally, you'll need to delete old versions of the deck tracker yourself after updating because I can't figure out how to get permission to do that within Python.
+
 
 #### Please message me on Discord (JMoney#6100) if you have any comments/questions/suggestions!
 

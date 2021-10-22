@@ -1,6 +1,22 @@
 # Change Log<br>
 This file contains all patch notes from previous versions, with the most recent change at the top.<br>
 
+## v3-1 (10/22/21)<br>
+### Acknowlegdements:<br>
+Thank you so much to:<br>
+-Verbalshadow for helping me figure out how to use GitHub better!
+
+### Bug Fixes
+- Cards with apostrophes in their names no longer show a mana cost of "99"
+
+### Quality of Life Changes
+- There is now an updater! Whenever there is an update available, you will be notified. If you want to, you can turn on auto-updates, which will automatically put you on the latest stable patch (you'll still be notified every time this happens).
+If you have auto-updates turned off, you can still install an update by clicking "Yes" on the notification. Finally, if you choose, you can turn off update notifications (regardless of if you have auto-updates on or off).
+
+
+### Code Changes<br>
+- Made how the config file works much more future-proofed (now looks for keywords rather than for a specific line)<br><br>
+
 ## v3-0 (10/20/21)<br>
 ### Acknowlegdements:<br>
 Thank you so much to:<br>

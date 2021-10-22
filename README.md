@@ -37,7 +37,7 @@ but if you're on Mac/Linux, I'd really appreciate if you tell me if it works or 
 
 ## FAQs:<br>
 - Q: My Deck Tracker crashes as soon as I open it!<br>
-A: That isn't a question, but try delteting your config.txt file. If that does work, please reach out to me at JMoney#6100 on Discord!
+A: That isn't a question, but try delteting your config.txt file. If that doesn't work, please reach out to me at JMoney#6100 on Discord!
 
 
 

@@ -5,7 +5,8 @@
 #### Most recent release: 3-0
 #### Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg 
 
-This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable. **You'll be able to find the most recent .py file on the main page, and the most recent .exe file in the most recent release!**
+This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable. 
+### You'll be able to find the most recent .py file on the main page, and the most recent .exe file in the most recent release!
 
 The executable is a self-contained version of the deck tracker; it doesn't require you to download Python, or any of the libraries I use.
 However, it is quite a bit larger since it needs to include the entire Python interpreter, and obviously isn't transparent (There's nothing in it that isn't in the python file, but you can never really be sure).

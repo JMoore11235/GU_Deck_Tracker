@@ -2,7 +2,7 @@
 
 ## Overview<br>
 
-Most recent YouTube video: 
+Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg 
 
 This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable.
 
@@ -34,11 +34,11 @@ I believe that this should work with any OS that can run Python (which is pretty
 but if you're on Mac/Linux, I'd really appreciate if you tell me if it works or not for you!
 
 ## Most Recent Update [v3-0 (10/20/21)]<br>
-###Acknowlegdements:<br>
+### Acknowlegdements:<br>
 Thank you so much to:<br>
 -Ecksray for helping me test edge cases,<br>
 -Misko for helping me find more/different log files to get more consistent results, and<br>
--Palestich for discovering how to automatically update the deck as well as lots of other helpful ideas!<br>
+-Palestitch for discovering how to automatically update the deck as well as lots of other helpful ideas!<br>
 
 ### Bug Fixes
 - Many issues with the deck tracker's counting have been solved. For example, overdrawing now removes a card from your deck and shuffling cards into your deck adds them to the tracker<br>

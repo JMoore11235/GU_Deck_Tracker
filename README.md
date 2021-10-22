@@ -3,7 +3,7 @@
 ## Overview<br>
 
 #### Most recent release: 3-1
-#### Most recent YouTube video: https://www.youtube.com/watch?v=B42AySfLKwg (Currently outdated)
+#### Compilation Proof for 3-1: https://www.youtube.com/watch?v=HdrNUC9oYAc
 
 This GitHub contains 2 main files (besides this README, a change log, and a folder containing previous versions of this deck tracker): a python file and an executable. 
 ### You'll be able to find the most recent .py file on the main page, and the most recent .exe file in the latest release!
